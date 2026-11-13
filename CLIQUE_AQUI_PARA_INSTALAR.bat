@@ -115,9 +115,33 @@ if %errorlevel% neq 0 (
     dism.exe /Online /Add-ProvisionedAppxPackage /PackagePath:"!BUNDLE_FILE!" /SkipLicense >nul 2>&1
 )
 
-:: 7. Validacao final
+:: 7. Validacao final e Verificacao do WebView2
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
     "$app = Get-AppxPackage *JWLibrary*; if (-not $app) { exit 1 }"
+
+:: Verificacao do Microsoft Edge WebView2 Runtime
+echo [Passo 6/6] Verificando Microsoft Edge WebView2 Runtime...
+reg query "HKLM\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-4D41-44AC-ABCA-E868FE50F1FB}" /v pv >nul 2>&1
+if %errorlevel% neq 0 (
+    reg query "HKCU\Software\Microsoft\EdgeUpdate\Clients\{F3017226-4D41-44AC-ABCA-E868FE50F1FB}" /v pv >nul 2>&1
+)
+if %errorlevel% neq 0 (
+    echo.
+    echo [AVISO] O Microsoft Edge WebView2 Runtime nao foi detectado!
+    if exist "%~dp0MicrosoftEdgeWebview2Setup.exe" (
+        echo Instalando WebView2 automaticamente...
+        start /wait "" "%~dp0MicrosoftEdgeWebview2Setup.exe" /silent /install
+    ) else if exist "%~dp0MicrosoftEdgeWebView2RuntimeInstallerX64.exe" (
+        echo Instalando WebView2 automaticamente...
+        start /wait "" "%~dp0MicrosoftEdgeWebView2RuntimeInstallerX64.exe" /silent /install
+    ) else (
+        echo Baixe e instale o WebView2 para que o JW Library exiba textos e midias:
+        echo Link oficial: https://go.microsoft.com/fwlink/p/?LinkId=2124703
+        echo.
+    )
+) else (
+    echo   [OK] Microsoft Edge WebView2 ja esta instalado.
+)
 
 if %errorlevel% equ 0 (
     color 2F
