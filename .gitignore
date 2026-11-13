@@ -1,0 +1,8 @@
+# Ignora arquivos grandes do commit padrao do git (eles sao publicados via GitHub Releases)
+*.msixbundle
+*.msix
+*.exe
+*.7z
+*.zip
+*.img
+.DS_Store
